@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2f4ec">
+  <title>Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #202822;
+      --muted: #7c857d;
+      --paper: #f2f4ec;
+      --panel: #fffefa;
+      --line: #e7e9e0;
+      --green: #c8ed72;
+      --coral: #f2775e;
+      --mono: "DM Mono", Consolas, monospace;
+      --sans: "Manrope", "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--ink);
+      font-family: var(--sans);
+      background-color: var(--paper);
+      background-image: radial-gradient(#d7ddce 0.8px, transparent 0.8px);
+      background-size: 19px 19px;
+    }
+    .calculator {
+      width: min(100%, 390px);
+      padding: 26px;
+      border: 1px solid rgba(32, 40, 34, 0.08);
+      border-radius: 10px;
+      background: var(--panel);
+      box-shadow: 0 24px 70px rgba(42, 53, 40, 0.12);
+      animation: arrive 420ms ease-out both;
+    }
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .topline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 800; }
+    .brand-mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 8px; background: var(--green); font-size: 18px; }
+    .status { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .status::before { width: 7px; height: 7px; border-radius: 50%; background: #77bb72; content: ""; }
+    .screen { min-height: 136px; padding: 17px 16px; border: 1px solid var(--line); border-radius: 8px; background: #fafbf6; }
+    .expression { min-height: 25px; overflow-wrap: anywhere; color: var(--muted); font-family: var(--mono); font-size: 14px; text-align: right; }
+    .result { min-height: 54px; margin-top: 9px; overflow-x: auto; color: var(--ink); font-family: var(--mono); font-size: clamp(30px, 10vw, 42px); font-weight: 500; line-height: 1.25; text-align: right; white-space: nowrap; }
+    .result.error { color: var(--coral); font-family: var(--sans); font-size: 15px; white-space: normal; }
+    .keys { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 17px; }
+    button { min-width: 0; aspect-ratio: 1.12; border: 0; border-radius: 7px; color: var(--ink); background: #f1f2ec; font: 600 18px var(--sans); cursor: pointer; transition: background 140ms ease, transform 140ms ease; }
+    button:hover { background: #e6e9de; }
+    button:active { transform: scale(0.96); }
+    button:focus-visible { outline: 3px solid rgba(65, 112, 54, 0.38); outline-offset: 2px; }
+    button.utility { color: #52614d; background: #e9eee2; font-size: 14px; }
+    button.operator { color: #99503f; background: #fae9e2; font-size: 20px; }
+    button.equals { color: #23311e; background: var(--green); font-size: 23px; }
+    button.zero { grid-column: span 2; aspect-ratio: auto; }
+    .footnote { display: flex; justify-content: space-between; margin-top: 19px; color: #92988f; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    @media (max-width: 420px) { .calculator { padding: 20px; } .keys { gap: 8px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  </style>
+</head>
+<body>
+  <main class="calculator" aria-label="Calculator">
+    <header class="topline">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">+</span> Calc / 01</div>
+      <span class="status">Ready</span>
+    </header>
+    <section class="screen" aria-live="polite" aria-atomic="true">
+      <div class="expression" id="expression">&nbsp;</div>
+      <div class="result" id="result">0</div>
+    </section>
+    <div class="keys" aria-label="Calculator keys">
+      <button class="utility" data-action="clear" aria-label="Clear">AC</button>
+      <button class="utility" data-action="backspace" aria-label="Backspace">DEL</button>
+      <button class="utility" data-value="%">%</button>
+      <button class="operator" data-value="/" aria-label="Divide">÷</button>
+      <button data-value="7">7</button><button data-value="8">8</button><button data-value="9">9</button>
+      <button class="operator" data-value="*" aria-label="Multiply">×</button>
+      <button data-value="4">4</button><button data-value="5">5</button><button data-value="6">6</button>
+      <button class="operator" data-value="-" aria-label="Subtract">−</button>
+      <button data-value="1">1</button><button data-value="2">2</button><button data-value="3">3</button>
+      <button class="operator" data-value="+" aria-label="Add">+</button>
+      <button class="zero" data-value="0">0</button><button data-value=".">.</button>
+      <button class="equals" data-action="equals" aria-label="Calculate">=</button>
+    </div>
+    <footer class="footnote"><span>Arithmetic</span><span>API connected</span></footer>
+  </main>
+  <script>
+    const expressionDisplay = document.querySelector("#expression");
+    const resultDisplay = document.querySelector("#result");
+    let expression = "";
+
+    function showExpression() {
+      expressionDisplay.textContent = expression || "\u00a0";
+      resultDisplay.classList.remove("error");
+      resultDisplay.textContent = expression ? "" : "0";
+    }
+
+    async function calculate() {
+      if (!expression) return;
+      expressionDisplay.textContent = expression;
+      resultDisplay.classList.remove("error");
+      resultDisplay.textContent = "...";
+      try {
+        const response = await fetch("/api/cacl", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ expression })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || "Calculation failed");
+        resultDisplay.textContent = String(data.result);
+        expression = String(data.result);
+      } catch (error) {
+        resultDisplay.classList.add("error");
+        resultDisplay.textContent = error.message;
+      }
+    }
+
+    function press(key) {
+      if (key === "clear") { expression = ""; showExpression(); return; }
+      if (key === "backspace") { expression = expression.slice(0, -1); showExpression(); return; }
+      if (key === "equals") { calculate(); return; }
+      if (/^[0-9.+\-*/%]$/.test(key) && expression.length < 256) {
+        expression += key;
+        showExpression();
+      }
+    }
+
+    document.querySelector(".keys").addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (button) press(button.dataset.action || button.dataset.value);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (/^[0-9.+\-*/%]$/.test(event.key)) press(event.key);
+      else if (event.key === "Enter" || event.key === "=") press("equals");
+      else if (event.key === "Backspace") press("backspace");
+      else if (event.key === "Escape") press("clear");
+    });
+  </script>
+</body>
+</html>
